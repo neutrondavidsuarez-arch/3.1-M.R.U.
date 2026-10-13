@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioLearning - Tema 3.1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init({ publicKey: "3LjnpLaDboHWv0VPY" });
+        })();
+    </script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .iframe-container { position: relative; width: 100%; height: 75vh; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+        .nav-btn { transition: all 0.3s ease; border-bottom: 3px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { transform: translateY(-2px); }
+        .nav-btn.active { border-color: #10b981; color: #10b981; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+        .dot-pulse { animation: pulse-dot 1.2s infinite; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans min-h-screen">
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex flex-col lg:flex-row justify-between items-center gap-4">
+                <div class="text-center lg:text-left">
+                    <h1 class="text-xl font-black text-emerald-600 tracking-tight">UNIDAD 3</h1>
+                    <p class="text-slate-500 font-bold text-xs uppercase">Tema 3.1: Prueba</p>
+                </div>
+               
+                <nav class="flex flex-wrap justify-center gap-1 md:gap-4">
+                    <button onclick="prepQuiz('deber', this)" class="nav-btn active px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>🧪</span> Deber
+                    </button>
+                    <button onclick="prepQuiz('evaluacion', this)" class="nav-btn px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>📝</span> Repaso
+                    </button>
+                    <button onclick="prepQuiz('extra', this)" class="nav-btn px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>📚</span> Práctica
+                    </button>
+                    <button onclick="prepQuiz('evaluacion_final', this)" class="nav-btn px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>📊</span> Evaluación
+                    </button>
+                    <button onclick="showSection('pdf', this)" class="nav-btn px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>📋</span> Pizarra
+                    </button>
+                    <button onclick="showSection('video', this)" class="nav-btn px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>🎥</span> Video
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <main id="app" class="max-w-5xl mx-auto p-6">
+    </main>
+    <script>
+        const DRIVE_PDF_URL = "https://drive.google.com/file/d/1eQEVoXRb0ZMx82jl_JczymMuBtQpkocG/view?usp=sharing";
+        const DRIVE_VIDEO_URL = "https://drive.google.com/file/d/1GWnCYWw-0647T7I3vl4ykKSZdx0gUcw0/view?usp=sharing";
+
+        // PRINCIPAL (Deber + Repaso) 30/10 preguntas
+        const quizData = [
+            { question: 'Un motociclista viaja con velocidad constante de 15 m/s, y pasa por los puntos A, B, C y D. Determine la distancia entre el punto A y D: <br> <img src="https://i.ibb.co/LX24MY55/Captura-de-pantalla-2026-07-08-103301.png" alt="Descripción de la imagen" width="400" height="150">', options: ['150 m', '185 m', '195 m', '215 m'], answer: '195 m', explanation: '<img src="https://i.ibb.co/d0wdJdgM/Captura-de-pantalla-2026-10-12-161535.png" alt="Descripción de la imagen" width="420" height="400">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'La velocidad con la que viaja un vehículo se representa en el siguiente gráfico, determine la distancia recorrida entre los 4 y 9 segundos. <br> <img src="https://i.ibb.co/21CY4HKW/Captura-de-pantalla-2026-07-08-103828.png" alt="Descripción de la imagen" width="250" height="250">', options: ['55 m', '99 m', '121 m', '110 m'], answer: '55 m', explanation: '<img src="https://i.ibb.co/v68j34rK/Captura-de-pantalla-2026-10-12-161852.png" alt="Descripción de la imagen" width="420" height="400">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Una bicicleta se mueve con MRU, se registra en una tabla el tiempo y la distancia desde un punto de referencia. Con base en la tabla, identifique la ecuación del movimiento d=f(t). <br> <img src="https://i.ibb.co/3yVZLfs8/Captura-de-pantalla-2026-07-08-104216.png" alt="Descripción de la imagen" width="80" height="90">', options: ['𝐝=𝟏𝟓+𝟑𝟎𝐭', '𝐝=𝟓+𝟏𝟎𝐭', '𝐝=𝟏𝟓+𝟓𝐭', '𝐝=𝟏𝟓+𝟏𝟎𝐭'], answer: '𝐝=𝟏𝟓+𝟓𝐭', explanation: '<img src="https://i.ibb.co/VYGS90qT/Captura-de-pantalla-2026-10-12-164022.png" alt="Descripción de la imagen" width="420" height="300">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Dos personas salen a su encuentro, cada una desde su ciudad. Las ciudades están separadas por 6720 metros, se asume que la trayectoria es rectilínea y que las personas viajan a 32 m/s y 48 m/s. Determine el tiempo que tardan en encontrarse y la distancia que recorre cada persona.', options: ['48 s, 1536 m, 5184 m', '56 s, 1792 m, 4928 m', '72 s, 2304 m, 4416 m', '84 s, 2688 m, 4032 m'], answer: '84 s, 2688 m, 4032 m', explanation: '<img src="https://i.ibb.co/nNW0qj8y/Captura-de-pantalla-2026-10-12-165544.png" alt="Descripción de la imagen" width="420" height="300">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'En la figura se muestra a dos personas que van a su encuentro, cada uno de ellos viaja con M.R.U. Si luego de 5/6 min Rafael pasa por el punto P, momento en el cual esta distanciado de Camilo por 5 hectómetros, determine la velocidad de Rafael. <br> <img src="https://i.ibb.co/jPbmHvYz/Captura-de-pantalla-2026-07-08-104759.png" alt="Descripción de la imagen" width="250" height="250">', options: ['1 m/s', '2 m/s', '3 m/s', '4 m/s'], answer: '4 m/s', explanation: '<img src="https://i.ibb.co/JwTdTbdd/Captura-de-pantalla-2026-10-12-165641.png" alt="Descripción de la imagen" width="420" height="300">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un vehículo de 5 metros de largo viaja desde Ambato hacia el puyo, este tiene que pasar a través de un túnel de 120 metros, si tarda en atravesarlo 5 segundos, determine la velocidad del vehículo. <br> <img src="https://i.ibb.co/STwGHV9/Captura-de-pantalla-2026-07-08-105014.png" alt="Descripción de la imagen" width="250" height="120">', options: ['25 m/s', '24 m/s', '23 m/s', '20 m/s'], answer: '25 m/s', explanation: '<img src="https://i.ibb.co/Vpr0wqTF/Captura-de-pantalla-2026-10-12-165850.png" alt="Descripción de la imagen" width="420" height="300">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Durante una persecución de un policía a un motociclista, se registra las velocidades de cada uno de los vehículos, mismos que viajan a velocidad constante, en un instante dado, el policía tiene una velocidad de 25m/s y el motociclista una velocidad de 15m/s y están distanciados 1200m. A partir del instante especificado, determine el tiempo que demora la persecución.', options: ['30 s', '1 min', '90 s', '2 min'], answer: '2 min', explanation: '<img src="https://i.ibb.co/5gdswjzd/Captura-de-pantalla-2026-10-13-135804.png" alt="Descripción de la imagen" width="300" height="350">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Dos vehículos van a su encuentro, el vehículo B viaja con una velocidad que es el doble de la velocidad del vehículo A, determine la relación de distancias recorridas entre el vehículo A y el vehículo B. <br> <img src="https://i.ibb.co/sdwh3VwT/Captura-de-pantalla-2026-07-08-105425.png" alt="Descripción de la imagen" width="250" height="150">', options: ['2', '1/2', '3', '1/4'], answer: '1/2', explanation: '<img src="https://i.ibb.co/q8x23TL/Captura-de-pantalla-2026-10-13-135952.png" alt="Descripción de la imagen" width="450" height="300">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un vehículo se desplaza desde A(1,3)m hasta B(13,8) en 6 segundos con velocidad constante. Determine la rapidez del vehículo.', options: ['2 m/s', '3/2 m/s', '13/6 m/s', '11/6 m/s'], answer: '13/6 m/s', explanation: '<img src="https://i.ibb.co/dw0mWby7/Captura-de-pantalla-2026-10-13-140224.png" alt="Descripción de la imagen" width="450" height="300">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un tráiler de 20 m de largo ingresa a un túnel de 60 metros de largo, si demora 10 segundos en atravesarlo. Determine la velocidad del tráiler. <br> <img src="https://i.ibb.co/TMQjwQ7b/Captura-de-pantalla-2026-07-08-105629.png" alt="Descripción de la imagen" width="250" height="130">', options: ['8 m/s', '9 m/s', '10 m/s', '14 m/s'], answer: '8 m/s', explanation: '<img src="https://i.ibb.co/67L4BzPh/Captura-de-pantalla-2026-10-13-140334.png" alt="Descripción de la imagen" width="450" height="300">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Si un móvil con MRU recorre una distancia de 100 km en 5 horas, ¿cuál es su rapidez en m/s?', options: ['5,1 m/s', '5,5 m/s', '5,8 m/s', '6,5 m/s'], answer: '5,5 m/s', explanation: '<img src="https://i.ibb.co/wZbpyD8v/Captura-de-pantalla-2026-10-13-140431.png" alt="Descripción de la imagen" width="450" height="150">.', multi: 'OFF', maxSelect: 1 },
+            { question: '¿Cuánto tiempo tardará en oírse el disparo al aire de un cañón situado a 1020 m de distancia? <br> (V<sub>sonido</sub>  = 340 𝑚/𝑠)', options: ['1s', '2s', '3s', '4s'], answer: '3s', explanation: '<img src="https://i.ibb.co/ymXL3xBG/Captura-de-pantalla-2026-10-13-141121.png" alt="Descripción de la imagen" width="250" height="300">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un motociclista con MRU pasa dos postes cada 5 segundos. Si los postes están separados 50 m, ¿cuál es la rapidez del motociclista en km/h?  <br> <img src="https://i.ibb.co/twBV2wcb/Captura-de-pantalla-2026-07-08-110346.png" alt="Descripción de la imagen" width="250" height="130">', options: ['10 km/h', '23 km/h', '36 km/h', '72 km/h'], answer: '36 km/h', explanation: '<img src="https://i.ibb.co/cSPz3K92/Captura-de-pantalla-2026-10-13-141652.png" alt="Descripción de la imagen" width="500" height="280">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Si un tren de 120 m de largo se desplaza con una velocidad constante de módulo de 200 m/s, calcula el tiempo que tardará en cruzar totalmente un túnel de 180 m. <br> <img src="https://i.ibb.co/NdDFhbBq/Captura-de-pantalla-2026-07-08-110609.png" alt="Descripción de la imagen" width="300" height="100">', options: ['1s', '1,5 s', '2s', '3s'], answer: '1,5 s', explanation: '<img src="https://i.ibb.co/XZrbcC3z/Captura-de-pantalla-2026-10-13-141941.png" alt="Descripción de la imagen" width="500" height="340">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Dos móviles (A y B) que se mueven con M.R.U., pasan simultáneamente y en la misma dirección por el punto P de una pista recta, de modo que la rapidez de A es 8 m/s y la de B, 15 m/s. ¿A qué distancia se encontrarán uno del otro luego de 2 minutos?', options: ['420 m', '1260 m', '630 m', '840 m'], answer: '840 m', explanation: '<img src="https://i.ibb.co/vvLRC5R0/Captura-de-pantalla-2026-10-13-142038.png" alt="Descripción de la imagen" width="500" height="340">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Si una persona dispone de 6 horas para pasear, ¿hasta qué distancia podría hacerse conducir por un auto que va a 12 km/h, sabiendo que tiene que regresar a pie y a 4 km/h? (asume MRU en cada caso).', options: ['15 km', '16 km', '17 km', '18 km'], answer: '18 km', explanation: '<img src="https://i.ibb.co/prGvnBzf/Captura-de-pantalla-2026-10-13-142118.png" alt="Descripción de la imagen" width="500" height="340">.', multi: 'OFF', maxSelect: 1 },
+            { question: '¿En qué tiempo llegará la luz del sol hasta la Tierra si debe recorrer aproximadamente 1,5 𝑥 10<sup>8</sup>  𝑘𝑚? (𝑉_𝑙𝑢𝑧  = 3 𝑥10<sup>8</sup>  𝑚/𝑠)', options: ['50 min', '20,5 min', '8,3 min', '11,7 min'], answer: '8,3 min', explanation: '<img src="https://i.ibb.co/Z6kBqNj0/Captura-de-pantalla-2026-10-13-142202.png" alt="Descripción de la imagen" width="500" height="340">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Si dos móviles A y B van al encuentro uno del otro con MRU, luego de qué tiempo se encuentran a partir del instante mostrado. <br> <img src="https://i.ibb.co/4RRFkkLR/Captura-de-pantalla-2026-07-08-111210.png" alt="Descripción de la imagen" width="300" height="100">', options: ['1s', '25s', '10s', '20s'], answer: '10s', explanation: '<img src="https://i.ibb.co/Ps8hzpzc/Captura-de-pantalla-2026-10-13-142247.png" alt="Descripción de la imagen" width="500" height="340">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Dos móviles con velocidades de módulos V y 3V van al encuentro el uno del otro. Si la separación inicial es de 100 m y el segundo móvil alcanza al primero en 20 segundos. Calcula la rapidez del primero.', options: ['1,25 m/s', '2,5 m/s', '3,5 m/s', '2 m/s'], answer: '1,25 m/s', explanation: '<img src="https://i.ibb.co/QF2qGnv4/Captura-de-pantalla-2026-10-13-142342.png" alt="Descripción de la imagen" width="250" height="340">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Dos móviles A y B con MRU van al encuentro como muestra la figura, ¿a qué distancia del móvil A se da el encuentro? <br> <img src="https://i.ibb.co/d1rmMNx/Captura-de-pantalla-2026-07-08-111633.png" alt="Descripción de la imagen" width="300" height="100">', options: ['40 m', '60 m', '80 m', '100 m'], answer: '80 m', explanation: '<img src="https://i.ibb.co/vv6FFqyP/Captura-de-pantalla-2026-10-13-142553.png" alt="Descripción de la imagen" width="450" height="340">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'En la gráfica x – t, determina la distancia recorrida hasta t = 5 s y la magnitud de su desplazamiento. <br> <img src="https://i.ibb.co/FbyzNR3v/Captura-de-pantalla-2026-07-08-111915.png" alt="Descripción de la imagen" width="300" height="280">', options: ['84 m y 90 m', '90 m y 90 m', '150 m y 78 m', '162 m y 90 m'], answer: '162 m y 90 m', explanation: '<img src="https://i.ibb.co/991XQcSR/Captura-de-pantalla-2026-10-13-142903.png" alt="Descripción de la imagen" width="450" height="340">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'La gráfica muestra la posición (x) versus el tiempo (t) de dos móviles con MRU. ¿En qué instante t el móvil B alcanza al móvil A? (V<sub>B</sub>  = 2V<sub>A</sub>) <br> <img src="https://i.ibb.co/4njgvqWR/Captura-de-pantalla-2026-07-08-112441.png" alt="Descripción de la imagen" width="250" height="250">', options: ['10s', '20s', '30s', '40s'], answer: '40s', explanation: '<img src="https://i.ibb.co/wNv386fN/Captura-de-pantalla-2026-10-13-143005.png" alt="Descripción de la imagen" width="450" height="340">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Calcula la distancia recorrida por el móvil entre t = 0 y t = 6 s. <br> <img src="https://i.ibb.co/yBQTqD0J/Captura-de-pantalla-2026-07-08-112810.png" alt="Descripción de la imagen" width="280" height="250">', options: ['4 m', '8 m', '12 m', '24 m'], answer: '12 m', explanation: '<img src="https://i.ibb.co/0yfszk0c/Captura-de-pantalla-2026-10-13-143045.png" alt="Descripción de la imagen" width="450" height="340">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Calcula el desplazamiento entre t = 3 s y t = 10 s. <br> <img src="https://i.ibb.co/j9WmzxB0/Captura-de-pantalla-2026-07-08-113128.png" alt="Descripción de la imagen" width="250" height="250">', options: ['1 m', '20 m', '0 m', '30 m'], answer: '30 m', explanation: '<img src="https://i.ibb.co/FbGLhHvs/Captura-de-pantalla-2026-10-13-143140.png" alt="Descripción de la imagen" width="450" height="350">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'En el gráfico x 0 t, determina la posición del móvil para t = 4 s. <br> <img src="https://i.ibb.co/mrCZ2NN9/Captura-de-pantalla-2026-07-08-113316.png" alt="Descripción de la imagen" width="250" height="250">', options: ['10 m', '16 m', '12 m', '20 m'], answer: '12 m', explanation: '<img src="https://i.ibb.co/tp7pRkzd/Captura-de-pantalla-2026-10-13-143419.png" alt="Descripción de la imagen" width="450" height="350">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Si un automóvil viaja con una rapidez de 90 km/h, ¿cuánto tiempo tardará en recorrer una distancia de 500 m?', options: ['30s', '20s', '15s', '12s'], answer: '20s', explanation: '<img src="https://i.ibb.co/Y73FYmY9/Captura-de-pantalla-2026-10-13-143508.png" alt="Descripción de la imagen" width="450" height="350">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Si un móvil con M.R.U. tiene una rapidez de 72 km/h, ¿qué tiempo empleará en recorrer 10 m?', options: ['0,1 s', '0,4 s', '0,5 s', '1,5 s'], answer: '0,5 s', explanation: '<img src="https://i.ibb.co/4nRt7yL3/Captura-de-pantalla-2026-10-13-143556.png" alt="Descripción de la imagen" width="450" height="350">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Los perritos Fido y Dido están separados por una distancia de 500 m y parten simultáneamente al encuentro con velocidades constantes de módulos 7 m/s y 8 m/s. ¿Cuánto tiempo tardarán en estar separados 200 m? (Asumir M.R.U. para ambos)', options: ['10s', '15s', '20s', '30s'], answer: '20s', explanation: '<img src="https://i.ibb.co/wFfXrTgg/Captura-de-pantalla-2026-10-13-143656.png" alt="Descripción de la imagen" width="250" height="350">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Si un tren con M.R.U. demora 6 segundos en pasar delante de un observador y 15 segundos en pasar totalmente por un túnel de 270 m de longitud, ¿cuál es la longitud del tren?', options: ['180 m', '4050 m', '360 m', '450 m'], answer: '180 m', explanation: '<img src="https://i.ibb.co/PGBkftD7/Captura-de-pantalla-2026-10-13-143831.png" alt="Descripción de la imagen" width="550" height="350">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un auto se encuentra a 540 m de una montaña, y se acerca a ella si cuando el claxon del auto suena el eco es percibido por el chofer 3 segundos después, calcula la rapidez del auto si con M.R.U. (Vsonido = 340 m/s) <br> <img src="https://i.ibb.co/3gfKmq0/t-DTqg.jpg" alt="Descripción de la imagen" width="400" height="200">', options: ['20 m/s', '30 m/s', '10 m/s', '15 m/s'], answer: '20 m/s', explanation: '<img src="https://i.ibb.co/VYkscjhg/Captura-de-pantalla-2026-10-13-143932.png" alt="Descripción de la imagen" width="550" height="350">.', multi: 'OFF', maxSelect: 1 },
+        ];
+
+        // Practica 20 preguntas
+        const quizDataExtra = [
+            { question: 'Un automóvil se encuentra a 620 m de una pared y se aleja de ella con M.R.U. cuando el chofer toca el claxon, ¿calcula después de qué tiempo escucha el eco del claxon, si el auto viaja a 30 m/s? <br> (V<sub>sonido</sub>=340 𝑚/𝑠) <br> <img src="https://i.ibb.co/KxV4fFtj/j8wi-U.jpg" alt="Descripción de la imagen" width="500" height="200">', options: ['2s', '3s', '4s', '5s'], answer: '4s', explanation: '<img src="https://i.ibb.co/S7NX8XF0/Captura-de-pantalla-2026-10-13-144112.png" alt="Descripción de la imagen" width="550" height="350">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Dos autos que se encuentran separados 200 m parten en el mismo sentido y con M.R.U. en el mismo instante uno de ellos posee una rapidez de 75 m/s y el otro una de 50 m/s, calcula el espacio que recorre el más lento hasta que es alcanzado. <br> <img src="https://i.ibb.co/RkKtwFL4/Captura-de-pantalla-2026-07-08-115103.png" alt="Descripción de la imagen" width="300" height="100">', options: ['100 m', '300 m', '400 m', '150 m'], answer: '400 m', explanation: '<img src="https://i.ibb.co/wZrF2YP3/Captura-de-pantalla-2026-10-13-144230.png" alt="Descripción de la imagen" width="550" height="350">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Calcula el vector velocidad media para la partícula que se muestra en la figura esta demora 2s en ir de A hasta B. <br> <img src="https://i.ibb.co/qLkgtHnv/Captura-de-pantalla-2026-07-08-115408.png" alt="Descripción de la imagen" width="300" height="250">', options: ['5,0 m/s', '6,5 m/s', '7,5 m/s', '8,0 m/s'], answer: '6,5 m/s', explanation: '<img src="https://i.ibb.co/JRypt49g/Captura-de-pantalla-2026-10-13-144541.png" alt="Descripción de la imagen" width="550" height="450">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Determina la magnitud del desplazamiento de una partícula en el tercer segundo si su posición está dada por la siguiente ecuación paramétrica: <br> 𝑟=(t<sup>2</sup>+1; t<sup>2</sup>  –1)', options: ['√162', '√81', '√18', '√27'], answer: '√162', explanation: '<img src="https://i.ibb.co/rRh3V9SJ/Captura-de-pantalla-2026-10-13-144834.png" alt="Descripción de la imagen" width="550" height="450">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Escribe V o F con respecto a la siguiente gráfica y marca la secuencia correcta. <br> I. El móvil parte a 3 m del origen.  <br> II. La rapidez del móvil es 1 m/s.  <br> III. Para: t = 6 s el móvil está a 9 m del origen <br> <img src="https://i.ibb.co/5WrN1y78/Captura-de-pantalla-2026-07-08-115812.png" alt="Descripción de la imagen" width="300" height="250">', options: ['VFV', 'FFF', 'VVF', 'VVV'], answer: 'VVV', explanation: '<img src="https://i.ibb.co/ksddS6yM/Captura-de-pantalla-2026-10-13-145000.png" alt="Descripción de la imagen" width="550" height="450">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Si el gráfico posición – tiempo mostrado corresponde a un auto que se mueve en línea recta, determina el grado de verdad de las siguientes proposiciones. <br> I. Desde t = 2 a t = 4 su movimiento es uniforme. II. Para t = 9 su velocidad es cero. <br> III. Para t > 4 su velocidad es negativa. <br> <img src="https://i.ibb.co/C3KNRLwk/Captura-de-pantalla-2026-07-09-092233.png" alt="Descripción de la imagen" width="300" height="250">', options: ['VFV', 'FFV', 'VVF', 'VVV'], answer: 'FFV', explanation: '<img src="https://i.ibb.co/35fGvNVN/Captura-de-pantalla-2026-10-13-145210.png" alt="Descripción de la imagen" width="550" height="400">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Una avioneta tiene una rapidez de 120 km/h respecto al aire si hay viento favorable de 40 km/h, ¿en cuánto tiempo recorre una distancia de 320 km? <br> <img src="https://i.ibb.co/7t96rNKk/Captura-de-pantalla-2026-07-09-092710.png" alt="Descripción de la imagen" width="300" height="150">', options: ['1 h', '1,5 h', '2 h', '2,5 h'], answer: '2 h', explanation: '<img src="https://i.ibb.co/dwKgzpvd/Captura-de-pantalla-2026-10-13-145739.png" alt="Descripción de la imagen" width="550" height="400">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un móvil se desplaza con M.R.U. y su posición está dada por x = 5 + 8t (en metros y segundos). ¿Cuál es su velocidad?', options: ['5 m/s', '8 m/s', '13 m/s', '40 m/s'], answer: '8 m/s', explanation: '<img src="https://i.ibb.co/bMdmz61t/Captura-de-pantalla-2026-10-13-150425.png" alt="Descripción de la imagen" width="550" height="380">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Dos móviles parten del mismo punto en sentidos opuestos con velocidades de 12 m/s y 18 m/s. ¿A qué distancia se encuentran luego de 10 s?', options: ['60 m', '120 m', '180 m', '300 m'], answer: '300 m', explanation: '<img src="https://i.ibb.co/F4Mz4v7Z/Captura-de-pantalla-2026-10-13-150852.png" alt="Descripción de la imagen" width="550" height="380">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un tren de 150 m de longitud tarda 10 s en pasar completamente por un punto. ¿Cuál es su velocidad?', options: ['10 m/s', '15 m/s', '20 m/s', '25 m/s'], answer: '15 m/s', explanation: '<img src="https://i.ibb.co/zTKZd5fr/Captura-de-pantalla-2026-10-13-151043.png" alt="Descripción de la imagen" width="550" height="380">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Si un auto viaja a 72 km/h, ¿qué distancia recorre en 25 s?', options: ['400 m', '500 m', '600 m', '700 m'], answer: '500 m', explanation: '<img src="https://i.ibb.co/hFSxk9JM/Captura-de-pantalla-2026-10-13-151127.png" alt="Descripción de la imagen" width="550" height="380">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'La gráfica v-t de un móvil muestra una línea horizontal. Esto indica que el movimiento es:', options: ['Acelerado', 'Uniforme', 'Retardado', 'Variable'], answer: 'Uniforme', explanation: '<img src="https://i.ibb.co/4Rx4bC3R/Captura-de-pantalla-2026-10-13-151214.png" alt="Descripción de la imagen" width="550" height="380">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un móvil recorre 240 m en 12 s con M.R.U. ¿Cuál es su rapidez?', options: ['15 m/s', '20 m/s', '25 m/s', '30 m/s'], answer: '20 m/s', explanation: '<img src="https://i.ibb.co/cSmmBZfr/Captura-de-pantalla-2026-10-13-151300.png" alt="Descripción de la imagen" width="550" height="380">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Dos personas caminan en la misma dirección a 1,5 m/s y 2,5 m/s. Si la separación inicial es de 40 m, ¿cuánto tarda el más rápido en alcanzar al más lento?', options: ['20 s', '30 s', '40 s', '50 s'], answer: '40 s', explanation: '<img src="https://i.ibb.co/ksZ7Lv3L/Captura-de-pantalla-2026-10-13-151438.png" alt="Descripción de la imagen" width="550" height="380">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un sonido tarda 2,5 s en regresar como eco. Si la velocidad del sonido es 340 m/s, ¿a qué distancia está el obstáculo?', options: ['340 m', '425 m', '850 m', '170 m'], answer: '425 m', explanation: '<img src="https://i.ibb.co/tPsNSg3V/Captura-de-pantalla-2026-10-13-151531.png" alt="Descripción de la imagen" width="550" height="350">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'La ecuación de posición de un móvil es x = 4t – 3. ¿Cuál es su velocidad?', options: ['3 m/s', '4 m/s', '7 m/s', '-3 m/s'], answer: '4 m/s', explanation: '<img src="https://i.ibb.co/PGPQ08Cc/Captura-de-pantalla-2026-10-13-151614.png" alt="Descripción de la imagen" width="550" height="380">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un móvil se mueve con M.R.U. a 15 m/s. ¿Qué distancia recorre en 2 minutos?', options: ['900 m', '1200 m', '1800 m', '1500 m'], answer: '1800 m', explanation: '<img src="https://i.ibb.co/3yKbstpR/Captura-de-pantalla-2026-10-13-151719.png" alt="Descripción de la imagen" width="550" height="280">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Si la velocidad de un móvil es constante, su aceleración es:', options: ['Máxima', 'Mínima', 'Cero', 'Variable'], answer: 'Cero', explanation: '<img src="https://i.ibb.co/gMHd2TqB/Captura-de-pantalla-2026-10-13-151907.png" alt="Descripción de la imagen" width="420" height="380">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un auto tarda 8 s en recorrer 160 m con M.R.U. ¿Cuál es su velocidad?', options: ['15 m/s', '20 m/s', '25 m/s', '30 m/s'], answer: '20 m/s', explanation: '<img src="https://i.ibb.co/XrjvfLnY/Captura-de-pantalla-2026-10-13-152028.png" alt="Descripción de la imagen" width="420" height="380">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Dos móviles se acercan con velocidades de 10 m/s y 15 m/s. Si la distancia inicial es 100 m, ¿en cuánto tiempo se encuentran?', options: ['2 s', '4 s', '5 s', '8 s'], answer: '4 s', explanation: '<img src="https://i.ibb.co/KxGGzHr3/Captura-de-pantalla-2026-10-13-152104.png" alt="Descripción de la imagen" width="520" height="350">.', multi: 'OFF', maxSelect: 1 },
+        ];
+
+        // EVALUACIÓN (16 preguntas) – placeholders corregidos
+        const quizDataEvaluacion = [
+            { question: 'Un estudiante de ingeniería observa un vehículo que se desplaza por una avenida completamente recta manteniendo su velocímetro fijo en 60 km/h. ¿Qué tipo de aceleración presenta este automóvil según el comportamiento de su velocidad?', options: ['Constante y positiva', 'Variable', 'Nula', 'Negativa'], answer: 'Nula', explanation: 'Al ser la velocidad constante &rarr; <br> aceleración nula.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Durante una sesión de laboratorio, se analiza el vector que une la posición inicial de un dron en el punto A con su posición final en el punto B. ¿A cuál de los siguientes términos técnicos de la cinemática corresponde este vector recto? <br> <img src="https://i.ibb.co/wZQvhvv8/Captura-de-pantalla-2026-10-13-152637.png" alt="Descripción de la imagen" width="300" height="270">', options: ['Trayectoria', 'Desplazamiento', 'Distancia recorrida', 'Posición instantánea'], answer: 'Desplazamiento', explanation: 'Desplazamiento.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un automóvil viaja por una carretera recta a una rapidez constante de 90 km/h. Si el conductor visualiza un letrero de control a una distancia de 500 metros, ¿cuánto tiempo en segundos tardará en llegar a dicho punto?', options: ['30 s', '20 s', '15 s', '12 s'], answer: '20 s', explanation: '<img src="https://i.ibb.co/hvnVqF5/Captura-de-pantalla-2026-10-13-152953.png" alt="Descripción de la imagen" width="500" height="480">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'A un carro le toma 3 horas viajar desde Cuenca hacia Guayaquil, y 4 horas en retornar por el mismo camino. Si el velocímetro del carro marca un recorrido de 196 km solamente de ida, la velocidad escalar media de ida y regreso es de:', options: ['0 km/h', '49 km/h', '56 km/h', '65.3 km/h'], answer: '56 km/h', explanation: '<img src="https://i.ibb.co/39C4sZv0/Captura-de-pantalla-2026-10-13-153144.png" alt="Descripción de la imagen" width="520" height="440">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Dos corredores de fondo están separados por una distancia de 160 metros en una pista recta y avanzan en sentidos opuestos para encontrarse. El primer corredor se desplaza a 5 m/s y el segundo a 3 m/s. Calcule la distancia en metros que recorre el primer corredor hasta el momento del encuentro.', options: ['60 ', '80 m', '100 m', '120 m'], answer: '100 m', explanation: '<img src="https://i.ibb.co/Tqnjm9bs/Captura-de-pantalla-2026-10-13-153413.png" alt="Descripción de la imagen" width="320" height="440">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Dos ciclistas se encuentran separados por 240 metros y avanzan al encuentro mutuo. Si la rapidez del ciclista A es el triple de la rapidez del ciclista B y se encuentran en 12 segundos, determine la rapidez del ciclista B en m/s.', options: ['5 m/s', '10 m/s', '15 m/s', '20 m/s'], answer: '5 m/s', explanation: '<img src="https://i.ibb.co/j9J2tDj4/Captura-de-pantalla-2026-10-13-153906.png" alt="Descripción de la imagen" width="500" height="440">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Durante una práctica policial, un agente persigue a un sospechoso en una calle recta. Ambos corren con M.R.U.; el agente corre a 8 m/s y el sospechoso a 5 m/s. Si el agente logra el alcance en exactamente 30 s, ¿qué distancia de separación inicial en metros había entre ellos?', options: ['60 m', '90 m', '120 m', '150 m'], answer: '90 m', explanation: '<img src="https://i.ibb.co/DDgrBYvP/Captura-de-pantalla-2026-10-13-154435.png" alt="Descripción de la imagen" width="500" height="440">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'La distancia Cuenca-Azogues es de 33 km. El límite de velocidad establecido para autopistas es de 90 km/h. Si su recorrido lo realizó en 30 minutos, ¿deberá recibir una multa?', options: ['Si, tuvo un exceso de velocidad de 10 km/h', 'Si, tuvo un exceso de velocidad de 15 km/h', 'No, no excedió el límite de velocidad permitido', 'No, casi excedió el límite de velocidad permitido'], answer: 'No, no excedió el límite de velocidad permitido', explanation: '<img src="https://i.ibb.co/BVnCzWc1/Captura-de-pantalla-2026-10-13-154618.png" alt="Descripción de la imagen" width="450" height="400">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un auto A persigue a un auto B en una autopista recta. El auto A viaja a 35 m/s y el auto B viaja a 25 m/s. Si la separación inicial entre ambos es de 500 m, determine la distancia total en metros que debe recorrer el auto A desde el inicio hasta lograr alcanzar al auto B.', options: ['1250 m', '1500 m', '1750 m', '2000 m'], answer: '1750 m', explanation: '<img src="https://i.ibb.co/wZvg5Rhv/Captura-de-pantalla-2026-10-13-154759.png" alt="Descripción de la imagen" width="450" height="400">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Considerando los puntos: 𝐴(2,−3), 𝐵(2,3), 𝑦 𝐶(−3,1); la mayor distancia entre estos, se produce entre:', options: ['A y B', 'A y C', 'B y C', 'Ninguna'], answer: 'A y C', explanation: '<img src="https://i.ibb.co/93hrjKwp/Captura-de-pantalla-2026-10-13-154922.png" alt="Descripción de la imagen" width="450" height="400">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un camión repartidor de 10 m de longitud viaja a una rapidez constante y debe cruzar un puente recto de 90 m de largo. Si el camión tarda un tiempo exacto de 5 s desde que la parte delantera ingresa al puente hasta que la parte trasera lo abandona por completo, calcule su rapidez en m/s.', options: ['20 m/s', '15 m/s', '10 m/s', '05 m/s'], answer: '20 m/s', explanation: '<img src="https://i.ibb.co/PsCvPyTy/Captura-de-pantalla-2026-10-13-160104.png" alt="Descripción de la imagen" width="450" height="400">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un tren de pasajeros con una longitud de 150 m se desplaza con M.R.U. a una rapidez constante de 25 m/s. Si el tren tarda un tiempo exacto de 14 s en atravesar por completo un túnel rectilíneo, ¿cuál es la longitud en metros de dicho túnel?', options: ['125 m', '150 m', '175 m', '200 m'], answer: '200 m', explanation: '<img src="https://i.ibb.co/kVYVvtwG/Captura-de-pantalla-2026-10-13-160453.png" alt="Descripción de la imagen" width="450" height="400">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un autobús escolar de 12 m de largo avanza a rapidez constante por una vía recta. Si emplea un tiempo de 4 s  en pasar completamente a través de un túnel de 68 m de longitud, determine el módulo de la velocidad del autobús en m/s.', options: ['15 m/s', '20 m/s', '18 m/s', '22 m/s'], answer: '20 m/s', explanation: '<img src="https://i.ibb.co/S44bQHDk/Captura-de-pantalla-2026-10-13-160610.png" alt="Descripción de la imagen" width="250" height="300">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un motociclista dispone de 4 h en total para realizar un viaje de ida y vuelta a lo largo de una carretera rectilínea. Si realiza el viaje de ida a una rapidez constante de 60 km/h y el viaje de regreso a una rapidez constante de 20 km/h, ¿cuál es la distancia máxima en kilómetros que puede alejarse desde su punto de partida?', options: ['40 km', '70 km', '80 km', '60 km'], answer: '60 km', explanation: '<img src="https://i.ibb.co/JWqVDTBM/Captura-de-pantalla-2026-10-13-160746.png" alt="Descripción de la imagen" width="450" height="400">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Una lancha a motor navega en un canal rectilíneo a una rapidez propia de 30 km/h respecto al agua. Si navega a favor de una corriente constante cuya velocidad es de 10 km/h, ¿cuántas horas tardará en recorrer una distancia total de 160 kilómetros?', options: ['2h', '3h', '4h', '5h'], answer: '4h', explanation: '<img src="https://i.ibb.co/xtswNj8C/Captura-de-pantalla-2026-10-13-160913.png" alt="Descripción de la imagen" width="450" height="400">.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Un deportista pasa junto a dos marcas de control pintadas en el suelo de una pista recta en un intervalo de 4 s. Si las marcas de control poseen una separación medida de 48 m entre sí y el deportista mantiene un M.R.U., calcule su rapidez expresada en km/h.', options: ['24 km/h', '36.2 km/h', '40 km/h', '43.2 km/h'], answer: '43.2 km/h', explanation: '<img src="https://i.ibb.co/cXp6qS2Y/Captura-de-pantalla-2026-10-13-161037.png" alt="Descripción de la imagen" width="450" height="400">.', multi: 'OFF', maxSelect: 1 },
+        ];
+
+        let state = {
+            currentMode: 'deber',
+            view: 'quiz_home',
+            studentName: '',
+            studentEmail: '',
+            activeQuestions: [],
+            currentQuestion: 0,
+            score: 0,
+            selectedAnswer: null,
+            isAnswerCorrect: null,
+            emailStatus: null,
+            emailAnalysis: null,
+            emailAnalysisMsg: ''
+        };
+
+        const disposableDomains = [
+            'tempmail.com','temp-mail.org','guerrillamail.com','10minutemail.com','mailinator.com',
+            'yopmail.com','throwawaymail.com','fakeinbox.com','trashmail.com','getnada.com',
+            'maildrop.cc','dispostable.com','sharklasers.com','guerrillamailblock.com'
+        ];
+        const trustedProviders = [
+            'gmail.com','googlemail.com','hotmail.com','hotmail.es','hotmail.co.uk','outlook.com',
+            'outlook.es','live.com','msn.com','yahoo.com','yahoo.es','icloud.com','me.com',
+            'protonmail.com','proton.me','aol.com','zoho.com','gmx.com','mail.com'
+        ];
+
+        function isValidEmailFormat(email) {
+            const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+            return re.test(email) && email.length <= 254 && !email.includes('..') && !email.startsWith('.') && !email.endsWith('.');
+        }
+
+        function analyzeEmail(email) {
+            const lower = email.toLowerCase().trim();
+            if (!lower) {
+                return { valid: false, msg: 'Escribe un correo electrónico.' };
+            }
+            if (!isValidEmailFormat(lower)) {
+                return { valid: false, msg: 'Formato inválido. Revisa que tenga @ y un dominio correcto.' };
+            }
+            const domain = lower.split('@')[1];
+            if (!domain || domain.length < 3) {
+                return { valid: false, msg: 'Dominio incompleto o inválido.' };
+            }
+            if (disposableDomains.some(d => domain === d || domain.endsWith('.' + d))) {
+                return { valid: false, msg: 'Correo temporal / desechable detectado. Usa un correo real.' };
+            }
+            const isTrusted = trustedProviders.some(p => domain === p);
+            const hasGoodTld = /\.(com|es|net|org|edu|gov|mx|ar|co|uk|de|fr|it|pt|br|cl)$/i.test(domain);
+            if (!hasGoodTld && !isTrusted) {
+                return { valid: false, msg: 'Dominio poco común o sospechoso. Usa Gmail, Hotmail/Outlook, Yahoo, etc.' };
+            }
+            let analysisText = '';
+            if (domain.includes('hotmail') || domain.includes('outlook') || domain.includes('live.com') || domain.includes('msn.com')) {
+                analysisText = 'Análisis: proveedor Microsoft (Hotmail/Outlook) detectado · formato correcto · dominio legítimo';
+            } else if (domain.includes('gmail') || domain.includes('googlemail')) {
+                analysisText = 'Análisis: proveedor Google (Gmail) detectado · formato correcto · dominio legítimo';
+            } else if (isTrusted) {
+                analysisText = 'Análisis: proveedor conocido · formato correcto · dominio legítimo';
+            } else {
+                analysisText = 'Análisis: formato válido · dominio con TLD estándar · no se detectaron patrones de correo temporal';
+            }
+            return { valid: true, msg: analysisText };
+        }
+
+        function showSection(section, btn) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const app = document.getElementById('app');
+            if (section === 'pdf') {
+                app.innerHTML = `<div class="animate-fade-in"><h2 class="text-xl font-bold mb-4">📄 Pizarra Virtual</h2><div class="iframe-container"><iframe src="${DRIVE_PDF_URL}" width="100%" height="100%"></iframe></div></div>`;
+            } else if (section === 'video') {
+                app.innerHTML = `<div class="animate-fade-in"><h2 class="text-xl font-bold mb-4">🎥 Video Clase</h2><div class="iframe-container"><iframe src="${DRIVE_VIDEO_URL}" width="100%" height="100%"></iframe></div></div>`;
+            }
+        }
+
+        function prepQuiz(mode, btn) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+           
+            state = {
+                currentMode: mode,
+                view: 'quiz_home',
+                studentName: '',
+                studentEmail: '',
+                activeQuestions: [],
+                currentQuestion: 0,
+                score: 0,
+                selectedAnswer: null,
+                isAnswerCorrect: null,
+                emailStatus: null,
+                emailAnalysis: null,
+                emailAnalysisMsg: ''
+            };
+            render();
+        }
+
+        function startQuiz() {
+            if (state.currentMode === 'deber') {
+                state.activeQuestions = [...quizData].slice(0, 30);
+            } else if (state.currentMode === 'evaluacion') {
+                state.activeQuestions = [...quizData]
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, 10);
+            } else if (state.currentMode === 'extra') {
+                state.activeQuestions = [...quizDataExtra].slice(0, 20);
+            } else if (state.currentMode === 'evaluacion_final') {
+                state.activeQuestions = [...quizDataEvaluacion];
+            }
+            state.view = 'name_input';
+            state.emailAnalysis = null;
+            state.emailAnalysisMsg = '';
+            render();
+        }
+
+        function onEmailInput() {
+            const e = document.getElementById('email-in');
+            if (!e) return;
+            const val = e.value.trim();
+            if (val.length < 5) {
+                state.emailAnalysis = null;
+                state.emailAnalysisMsg = '';
+                updateEmailUI();
+                return;
+            }
+            state.emailAnalysis = 'checking';
+            state.emailAnalysisMsg = 'Analizando correo…';
+            updateEmailUI();
+            clearTimeout(window._emailCheckTimer);
+            window._emailCheckTimer = setTimeout(() => {
+                const result = analyzeEmail(val);
+                state.emailAnalysis = result.valid ? 'valid' : 'invalid';
+                state.emailAnalysisMsg = result.msg;
+                updateEmailUI();
+            }, 600);
+        }
+
+        function updateEmailUI() {
+            const feedback = document.getElementById('email-feedback');
+            const analysis = document.getElementById('email-analysis');
+            const input = document.getElementById('email-in');
+            if (!feedback || !analysis || !input) return;
+            if (state.emailAnalysis === 'checking') {
+                feedback.innerHTML = `<span class="text-slate-500 text-sm flex items-center gap-2"><span class="dot-pulse">●</span> Verificando…</span>`;
+                analysis.innerHTML = `<p class="text-xs text-slate-400 mt-1">${state.emailAnalysisMsg}</p>`;
+                input.classList.remove('border-red-400', 'border-emerald-400');
+                input.classList.add('border-slate-300');
+            } else if (state.emailAnalysis === 'invalid') {
+                feedback.innerHTML = `<span class="text-red-600 text-sm font-semibold">✗ Correo no válido o inexistente</span>`;
+                analysis.innerHTML = `<p class="text-xs text-red-500/80 mt-1">${state.emailAnalysisMsg}</p>`;
+                input.classList.remove('border-emerald-400', 'border-slate-300');
+                input.classList.add('border-red-400');
+            } else if (state.emailAnalysis === 'valid') {
+                feedback.innerHTML = `<span class="text-emerald-600 text-sm font-semibold">✓ Correo aceptado</span>`;
+                analysis.innerHTML = `<p class="text-xs text-emerald-600/80 mt-1">${state.emailAnalysisMsg}</p>`;
+                input.classList.remove('border-red-400', 'border-slate-300');
+                input.classList.add('border-emerald-400');
+            } else {
+                feedback.innerHTML = '';
+                analysis.innerHTML = '';
+                input.classList.remove('border-red-400', 'border-emerald-400');
+                input.classList.add('border-slate-300');
+            }
+        }
+
+        function validaDatos() {
+            const n = document.getElementById('name-in').value.trim();
+            const e = document.getElementById('email-in').value.trim();
+            if (n.length <= 2) {
+                alert("Ingresa nombre completo (mínimo 3 caracteres).");
+                return;
+            }
+            const result = analyzeEmail(e);
+            state.emailAnalysis = result.valid ? 'valid' : 'invalid';
+            state.emailAnalysisMsg = result.msg;
+            updateEmailUI();
+            if (!result.valid) return;
+            state.studentName = n;
+            state.studentEmail = e;
+            state.view = 'playing';
+            render();
+        }
+
+        // ---------- LÓGICA SINGLE + MULTI ----------
+        function isMultiQuestion(q) {
+            return q.multi === 'ON';
+        }
+
+        function arraysEqual(a, b) {
+            if (!Array.isArray(a) || !Array.isArray(b)) return false;
+            if (a.length !== b.length) return false;
+            const sa = [...a].sort();
+            const sb = [...b].sort();
+            return sa.every((v, i) => v === sb[i]);
+        }
+
+        function handleAnswer(idx) {
+            if (state.isAnswerCorrect !== null) return;
+            const currentQ = state.activeQuestions[state.currentQuestion];
+            const option = currentQ.options[idx];
+
+            if (isMultiQuestion(currentQ)) {
+                let selected = Array.isArray(state.selectedAnswer) ? [...state.selectedAnswer] : [];
+                const pos = selected.indexOf(option);
+                if (pos > -1) {
+                    selected.splice(pos, 1);
+                } else {
+                    if (selected.length >= currentQ.maxSelect) return;
+                    selected.push(option);
+                }
+                state.selectedAnswer = selected;
+                render();
+            } else {
+                if (state.selectedAnswer !== null) return;
+                state.selectedAnswer = option;
+                state.isAnswerCorrect = (option === currentQ.answer);
+                if (state.isAnswerCorrect) state.score++;
+                render();
+                if (state.isAnswerCorrect) {
+                    setTimeout(() => nextQuestion(), 1000);
+                }
+            }
+        }
+
+        function checkMultiAnswer() {
+            if (state.isAnswerCorrect !== null) return;
+            const currentQ = state.activeQuestions[state.currentQuestion];
+            if (!isMultiQuestion(currentQ)) return;
+            const selected = Array.isArray(state.selectedAnswer) ? state.selectedAnswer : [];
+            if (selected.length === 0) return;
+            const correctAnswers = Array.isArray(currentQ.answer) ? currentQ.answer : [currentQ.answer];
+            state.isAnswerCorrect = arraysEqual(selected, correctAnswers);
+            if (state.isAnswerCorrect) state.score++;
+            render();
+            if (state.isAnswerCorrect) {
+                setTimeout(() => nextQuestion(), 1000);
+            }
+        }
+
+        function nextQuestion() {
+            if (state.currentQuestion + 1 < state.activeQuestions.length) {
+                state.currentQuestion++;
+                state.selectedAnswer = null;
+                state.isAnswerCorrect = null;
+                render();
+            } else {
+                state.view = 'results';
+                render();
+                enviarCorreo();
+            }
+        }
+
+        function enviarCorreo() {
+            if (!state.studentEmail) return;
+            state.emailStatus = 'sending';
+            render();
+            const scorePerc = Math.round((state.score / state.activeQuestions.length) * 100);
+            const totalQ = state.activeQuestions.length;
+            let imageUrl = '';
+            let mensaje = '';
+            if (scorePerc >= 90) {
+                imageUrl = 'https://img.icons8.com/color/128/medal2.png';
+                mensaje = `¡Excelente trabajo, ${state.studentName}! Obtuviste un resultado sobresaliente.`;
+            } else if (scorePerc >= 70) {
+                imageUrl = 'https://img.icons8.com/color/128/diploma.png';
+                mensaje = `¡Muy bien, ${state.studentName}! Has aprobado con un buen resultado.`;
+            } else if (scorePerc >= 50) {
+                imageUrl = 'https://img.icons8.com/color/128/ok.png';
+                mensaje = `Buen esfuerzo, ${state.studentName}. Sigue practicando para mejorar.`;
+            } else {
+                imageUrl = 'https://img.icons8.com/color/128/error.png';
+                mensaje = `Ánimo, ${state.studentName}. Revisa el material y vuelve a intentarlo.`;
+            }
+            const params = {
+                to_name: state.studentName,
+                to_email: state.studentEmail,
+                score: scorePerc,
+                correct_answers: state.score,
+                total_questions: totalQ,
+                mode_name: state.currentMode.toUpperCase(),
+                image_url: imageUrl,
+                mensaje: mensaje,
+                fecha: new Date().toLocaleDateString('es-ES', {
+                    year: 'numeric', month: 'long', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                })
+            };
+            emailjs.send("service_dhvsi72", "template_cy74x9h", params)
+                .then(() => {
+                    state.emailStatus = 'success';
+                    render();
+                })
+                .catch((err) => {
+                    console.error('Error EmailJS:', err);
+                    state.emailStatus = 'error';
+                    render();
+                });
+        }
+
+        function render() {
+            const app = document.getElementById('app');
+           
+            let modeTitle = '';
+            let modeDesc = '';
+            if (state.currentMode === 'deber') {
+                modeTitle = '🧪 Deber';
+                modeDesc = 'Resuelve las 30 preguntas del banco en orden.';
+            } else if (state.currentMode === 'evaluacion') {
+                modeTitle = '📝 Repaso';
+                modeDesc = 'Prueba de 10 preguntas seleccionadas al azar.';
+            } else if (state.currentMode === 'extra') {
+                modeTitle = '📚 Práctica';
+                modeDesc = 'Resuelve las 20 preguntas de la Práctica.';
+            } else if (state.currentMode === 'evaluacion_final') {
+                modeTitle = '📊 Evaluación';
+                modeDesc = 'Resuelve las 16 preguntas de la Evaluación.';
+            }
+           
+            if (state.view === 'quiz_home') {
+                app.innerHTML = `
+                <div class="text-center py-16 animate-fade-in bg-white rounded-[3rem] shadow-xl border">
+                    <h2 class="text-4xl font-black text-slate-800 mb-2">${modeTitle}</h2>
+                    <p class="text-slate-500 mb-8 text-lg">${modeDesc}</p>
+                    <button onclick="startQuiz()" class="bg-emerald-600 text-white px-12 py-5 rounded-2xl font-black text-xl hover:bg-emerald-700 transition-all">
+                        INICIAR
+                    </button>
+                </div>`;
+            }
+
+            if (state.view === 'name_input') {
+                app.innerHTML = `
+                <div class="max-w-md mx-auto bg-white p-10 rounded-[2.5rem] shadow-2xl animate-fade-in">
+                    <h2 class="text-2xl font-black mb-6 text-center">Registro de Estudiante</h2>
+                    <input id="name-in" type="text" placeholder="Nombre y Apellido completo" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mb-4 focus:border-emerald-500 outline-none">
+                   
+                    <div class="relative mb-1">
+                        <input id="email-in" type="email" placeholder="Correo para recibir nota (Gmail, Hotmail…)"
+                               class="w-full p-4 bg-slate-50 border border-slate-300 rounded-xl focus:border-emerald-500 outline-none transition-colors"
+                               oninput="onEmailInput()" onblur="onEmailInput()">
+                    </div>
+                   
+                    <div id="email-feedback" class="min-h-[22px] mb-1"></div>
+                    <div id="email-analysis" class="mb-5"></div>
+                   
+                    <button onclick="validaDatos()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all">
+                        ENTRAR AL TEST
+                    </button>
+                    <p class="text-center text-[11px] text-slate-400 mt-4">Se verifica formato y se descartan correos temporales. No se envía nada hasta terminar el test.</p>
+                </div>`;
+                setTimeout(updateEmailUI, 50);
+            }
+
+            if (state.view === 'playing') {
+                const q = state.activeQuestions[state.currentQuestion];
+                const progress = ((state.currentQuestion + 1) / state.activeQuestions.length) * 100;
+                const multi = isMultiQuestion(q);
+                const selected = multi
+                    ? (Array.isArray(state.selectedAnswer) ? state.selectedAnswer : [])
+                    : (state.selectedAnswer ? [state.selectedAnswer] : []);
+
+                const multiHint = multi
+                    ? `<p class="text-sm text-sky-600 font-semibold mb-4">
+                         Selección múltiple · elige q.maxSelectrespuesta{q.maxSelect > 1 ? 's' : ''}
+                         ${selected.length > 0 ? `(${selected.length}/${q.maxSelect})` : ''}
+                       </p>`
+                    : '';
+
+                app.innerHTML = `
+                <div class="animate-fade-in">
+                    <div class="flex justify-between items-center mb-6 px-4">
+                        <span class="font-black text-emerald-600">${state.currentQuestion + 1} / ${state.activeQuestions.length}</span>
+                        <div class="w-48 bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div class="bg-emerald-500 h-full transition-all" style="width:${progress}%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl border">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-2 leading-tight">${q.question}</h2>
+                        ${multiHint}
+                        <div class="grid gap-3">
+                            ${q.options.map((opt, idx) => {
+                                let style = "border-slate-100 bg-slate-50 hover:border-emerald-200";
+                                const isSelected = selected.includes(opt);
+
+                                if (state.isAnswerCorrect !== null) {
+                                    if (multi) {
+                                        const correctSet = Array.isArray(q.answer) ? q.answer : [q.answer];
+                                        if (correctSet.includes(opt) && isSelected) {
+                                            style = "border-emerald-500 bg-emerald-100 text-emerald-800";
+                                        } else if (isSelected && !correctSet.includes(opt)) {
+                                            style = "border-red-500 bg-red-100 text-red-800";
+                                        } else if (correctSet.includes(opt) && !isSelected) {
+                                            style = "border-emerald-300 bg-emerald-50 text-emerald-700";
+                                        }
+                                    } else {
+                                        // Single / V-F: siempre resaltar la correcta en verde + la incorrecta en rojo
+                                        if (opt === q.answer) {
+                                            style = "border-emerald-500 bg-emerald-100 text-emerald-800";
+                                        } else if (isSelected) {
+                                            style = "border-red-500 bg-red-100 text-red-800";
+                                        }
+                                    }
+                                } else if (isSelected) {
+                                    if (multi) {
+                                        style = "border-sky-400 bg-sky-100 text-sky-800";
+                                    } else {
+                                        style = "border-emerald-500 bg-emerald-100 text-emerald-800";
+                                    }
+                                }
+
+                                return `<button onclick="handleAnswer(${idx})" 
+                                            class="p-5 text-left border-2 rounded-xl font-bold transition-all ${style}">
+                                            ${opt}
+                                        </button>`;
+                            }).join('')}
+                        </div>
+
+                        ${multi && state.isAnswerCorrect === null ? `
+                            <button onclick="checkMultiAnswer()" 
+                                class="mt-6 w-full py-4 rounded-xl font-bold transition-all
+                                ${selected.length === q.maxSelect 
+                                    ? 'bg-sky-600 text-white hover:bg-sky-700' 
+                                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'}"
+                                ${selected.length !== q.maxSelect ? 'disabled' : ''}>
+                                Comprobar respuesta (selected.length/{q.maxSelect})
+                            </button>
+                        ` : ''}
+
+                        ${state.selectedAnswer !== null && state.isAnswerCorrect === false ? `
+                            <div class="mt-6 p-5 bg-amber-50 border border-amber-200 rounded-xl">
+                                <p class="font-bold text-amber-800 mb-2">Explicación:</p>
+                                <p class="text-slate-700">${q.explanation}</p>
+                            </div>
+                            <button onclick="nextQuestion()" class="mt-6 w-full bg-emerald-600 text-white py-4 rounded-xl font-bold hover:bg-emerald-700 transition-all">
+                                Siguiente pregunta
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>`;
+            }
+
+            if (state.view === 'results') {
+                const scorePerc = Math.round((state.score / state.activeQuestions.length) * 100);
+                app.innerHTML = `
+                <div class="max-w-md mx-auto text-center animate-fade-in bg-white p-12 rounded-[3rem] shadow-2xl">
+                    <h2 class="text-2xl font-black mb-2">${state.studentName}</h2>
+                    <p class="text-slate-400 uppercase text-xs font-bold mb-6">${state.currentMode}</p>
+                    <div class="text-7xl font-black text-emerald-600 mb-4">${scorePerc}%</div>
+                    <p class="text-lg font-bold text-slate-700 mb-10">${state.score} / ${state.activeQuestions.length} correctas</p>
+                    <button onclick="location.reload()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold">VOLVER AL INICIO</button>
+                    <p class="mt-6 text-xs font-bold text-slate-400">
+                        ${state.emailStatus === 'success' ? '✅ Nota e imagen enviadas al correo' :
+                          state.emailStatus === 'error' ? '⚠️ Error al enviar nota e imagen' :
+                          '⏳ Enviando nota e imagen al correo...'}
+                    </p>
+                </div>`;
+            }
+        }
+
+        render();
+    </script>
+</body>
+</html>
